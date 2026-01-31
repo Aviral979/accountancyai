@@ -1,181 +1,207 @@
 
 
-# AccountancyAI - Real AI Integration Plan
+# Ask Question Page - ChatGPT/Gemini Style UI Redesign
 
 ## Overview
-Is plan mein hum app ko real AI capabilities se connect karenge:
-- **Tesseract.js** se uploaded images mein se text extract karenge (OCR)
-- **Lovable AI (Gemini)** se extracted text ya typed question ka step-by-step accountancy answer generate karenge
+Current UI ko transform karenge ek modern chat interface mein jaise ChatGPT aur Gemini ka UI hota hai - centered input box at bottom, conversation-style messages, aur clean minimal design.
 
 ---
 
-## Architecture Flow
+## Current State vs Target State
+
+### Current UI Issues:
+- Form-based layout with card wrapper
+- Input field at top of page
+- Traditional form submit pattern
+- Solution display in separate cards below
+
+### Target UI (ChatGPT/Gemini Style):
+- Clean, minimal centered layout
+- Input bar fixed at bottom of screen
+- Chat bubble style messages
+- User question on right, AI response on left
+- Smooth typing animations
+- Avatar icons for user and AI
+- Collapsible step-by-step sections
+
+---
+
+## Visual Design Plan
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                        USER INTERFACE                           │
-│  ┌──────────────────┐    ┌──────────────────────────────────┐  │
-│  │  Type Question   │ OR │  Upload Image (JPG/PNG/PDF)      │  │
-│  └────────┬─────────┘    └─────────────┬────────────────────┘  │
-│           │                            │                        │
-│           │                  ┌─────────▼─────────┐              │
-│           │                  │   Tesseract.js    │              │
-│           │                  │   (OCR in Browser)│              │
-│           │                  └─────────┬─────────┘              │
-│           │                            │                        │
-│           └────────────┬───────────────┘                        │
-│                        │                                        │
-│              ┌─────────▼─────────┐                              │
-│              │  Extracted Text   │                              │
-│              └─────────┬─────────┘                              │
-└────────────────────────┼────────────────────────────────────────┘
-                         │
-           ┌─────────────▼─────────────┐
-           │   Backend Edge Function   │
-           │   (solve-question)        │
-           │                           │
-           │  - Receives question text │
-           │  - Calls Lovable AI       │
-           │    (Gemini 3 Flash)       │
-           │  - Returns structured     │
-           │    accountancy answer     │
-           └─────────────┬─────────────┘
-                         │
-           ┌─────────────▼─────────────┐
-           │   Step-by-Step Solution   │
-           │  - Journal Entries        │
-           │  - Ledger Postings        │
-           │  - Trial Balance          │
-           │  - Calculations           │
-           │  - Final Answer           │
-           └───────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│                     AccountancyAI (Header)                      │
+├────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│                    Empty State / Welcome                         │
+│                    "Ask any Accountancy                          │
+│                     Question"                                    │
+│                                                                  │
+│              [Example question chips to click]                   │
+│                                                                  │
+├────────────────────────────────────────────────────────────────┤
+│              OR (After conversation starts)                      │
+├────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│                              ┌─────────────────────────────┐    │
+│                              │ User's question bubble  👤  │    │
+│                              └─────────────────────────────┘    │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │  🤖 AI Response with collapsible steps                   │    │
+│  │                                                          │    │
+│  │  ▼ Step 1: Journal Entry                                 │    │
+│  │  ▼ Step 2: Ledger Posting                                │    │
+│  │  ▼ Step 3: Trial Balance                                 │    │
+│  │  ✓ Final Answer: ...                                     │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                  │
+├────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │ 📎 [Type your accountancy question...]        [↑ Send]   │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│              ⬆️ Image    Progress bar (if OCR running)          │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Install Tesseract.js Package
-NPM package install karenge jo browser mein OCR perform karega.
+### Step 1: Create ChatMessage Component
+Naya component banayenge jo messages ko bubble style mein display karega.
 
-**File:** `package.json`
-- Add dependency: `tesseract.js` (version ^5.0.0)
-
----
-
-### Step 2: Create Backend Edge Function for AI
-Ye function Lovable AI (Gemini) ko call karega aur accountancy answer generate karega.
-
-**File:** `supabase/functions/solve-question/index.ts`
-
-**Function Logic:**
-1. Question text receive karega
-2. CBSE Accountancy teacher ke role mein Lovable AI ko call karega
-3. Structured response return karega with:
-   - Journal Entries
-   - Ledger Postings
-   - Trial Balance
-   - Calculations
-   - Final Answer
-
-**System Prompt:**
-```
-You are a CBSE Class 11 & 12 Accountancy expert teacher. 
-Generate step-by-step solutions in this exact format:
-
-Step 1: Journal Entry - Show proper journal entry format
-Step 2: Ledger Posting - Show T-accounts for all accounts
-Step 3: Trial Balance - Extract trial balance if applicable
-Step 4: Calculations - Show any calculations needed
-Final Answer: Concise conclusion
-
-Use Indian Rupee (₹) symbol. Follow CBSE syllabus conventions.
-```
-
----
-
-### Step 3: Update config.toml
-Edge function configuration add karenge.
-
-**File:** `supabase/config.toml`
-```toml
-project_id = "ilxyrjighvsjseksenft"
-
-[functions.solve-question]
-verify_jwt = false
-```
-
----
-
-### Step 4: Create OCR Service Hook
-Tesseract.js ko use karne ke liye custom hook banayenge.
-
-**File:** `src/hooks/useOCR.ts`
+**File:** `src/components/ChatMessage.tsx`
 
 **Features:**
-- Image file ko input lega
-- Tesseract.js se text extract karega
-- Loading state manage karega
-- Progress percentage show karega (OCR mein time lagta hai)
-- Error handling
+- User message bubble (right aligned, primary color)
+- AI message bubble (left aligned, with avatar)
+- Support for markdown rendering in AI responses
+- Collapsible accordion for steps
+- Copy button on AI responses
+- Timestamp display
 
 ---
 
-### Step 5: Update AskQuestion Page
-Main page ko update karenge with real AI integration.
+### Step 2: Create ChatInput Component
+Bottom-fixed input component banayenge.
+
+**File:** `src/components/ChatInput.tsx`
+
+**Features:**
+- Rounded input box with send button
+- Attach image button on left side
+- Auto-resize textarea (grows with content)
+- Send on Enter, Shift+Enter for new line
+- Disabled state during loading
+- OCR progress indicator overlay
+- Beautiful focus states and animations
+
+---
+
+### Step 3: Create EmptyState Component
+Welcome screen jab koi conversation nahi hai.
+
+**File:** `src/components/EmptyState.tsx`
+
+**Features:**
+- Centered welcome message
+- App logo with gradient
+- "What can I help you with?" heading
+- Example question chips that user can click
+- Subtle animations
+
+---
+
+### Step 4: Create TypingIndicator Component
+Loading animation jab AI thinking kar raha hai.
+
+**File:** `src/components/TypingIndicator.tsx`
+
+**Features:**
+- Three bouncing dots animation
+- "AI is thinking..." text
+- Matches AI avatar style
+
+---
+
+### Step 5: Update StepDisplay for Accordion Style
+Existing StepDisplay ko collapsible accordion style mein update karenge.
+
+**File:** `src/components/StepDisplay.tsx`
+
+**Changes:**
+- Replace cards with accordion items
+- Add collapse/expand animations
+- More compact design
+- Better integration with chat bubbles
+
+---
+
+### Step 6: Redesign AskQuestion Page
+Main page ko completely redesign karenge.
 
 **File:** `src/pages/AskQuestion.tsx`
 
 **Changes:**
-1. Import Tesseract.js aur OCR hook
-2. `handleFileUpload` function update:
-   - Image upload hone par Tesseract.js se OCR start
-   - OCR progress show karna
-   - Extracted text ko question field mein display
-3. `handleSubmit` function update:
-   - Remove hardcoded `generateSolution`
-   - Call backend edge function
-   - Parse AI response into steps
-4. Add OCR loading state with progress indicator
-5. Better error handling for both OCR and AI failures
+1. Remove card-based layout
+2. Add flex column layout with:
+   - Scrollable message area (middle)
+   - Fixed input bar (bottom)
+3. Implement conversation state (array of messages)
+4. Each message has: type (user/ai), content, timestamp
+5. Empty state when no messages
+6. Auto-scroll to bottom on new messages
+7. Keyboard shortcuts (Enter to send)
+8. Ad banner positioned non-intrusively
+
+---
+
+### Step 7: Add New CSS Animations
+Smooth transitions aur animations add karenge.
+
+**File:** `src/index.css`
+
+**New Animations:**
+- Message fade-in slide-up
+- Typing dots bounce
+- Smooth scroll behavior
+- Input focus glow
 
 ---
 
 ## Technical Details
 
-### Tesseract.js Usage (Client-side)
+### Conversation State Structure:
 ```typescript
-import Tesseract from 'tesseract.js';
+interface Message {
+  id: string;
+  type: 'user' | 'ai';
+  content: string;
+  timestamp: Date;
+  steps?: SolutionStep[]; // For AI messages
+  finalAnswer?: string;   // For AI messages
+  isLoading?: boolean;    // For AI thinking state
+}
 
-const { data: { text } } = await Tesseract.recognize(
-  imageFile,
-  'eng+hin', // English + Hindi support
-  {
-    logger: (m) => {
-      if (m.status === 'recognizing text') {
-        setProgress(Math.round(m.progress * 100));
-      }
-    }
-  }
-);
+const [messages, setMessages] = useState<Message[]>([]);
 ```
 
-### Edge Function AI Call
+### Auto-scroll Implementation:
 ```typescript
-const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    model: "google/gemini-3-flash-preview",
-    messages: [
-      { role: "system", content: ACCOUNTANCY_SYSTEM_PROMPT },
-      { role: "user", content: questionText }
-    ]
-  })
-});
+const messagesEndRef = useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+}, [messages]);
+```
+
+### Auto-resize Textarea:
+```typescript
+const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  e.target.style.height = 'auto';
+  e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+};
 ```
 
 ---
@@ -184,25 +210,84 @@ const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions
 
 | File | Action | Description |
 |------|--------|-------------|
-| `package.json` | Modify | Add tesseract.js dependency |
-| `supabase/config.toml` | Modify | Add solve-question function config |
-| `supabase/functions/solve-question/index.ts` | Create | AI edge function |
-| `src/hooks/useOCR.ts` | Create | OCR helper hook |
-| `src/pages/AskQuestion.tsx` | Modify | Integrate OCR + AI |
+| `src/components/ChatMessage.tsx` | Create | Message bubble component |
+| `src/components/ChatInput.tsx` | Create | Bottom input bar component |
+| `src/components/EmptyState.tsx` | Create | Welcome/empty state |
+| `src/components/TypingIndicator.tsx` | Create | AI thinking animation |
+| `src/components/StepDisplay.tsx` | Modify | Convert to accordion style |
+| `src/pages/AskQuestion.tsx` | Modify | Complete redesign |
+| `src/index.css` | Modify | Add new animations |
+| `tailwind.config.ts` | Modify | Add new keyframes |
 
 ---
 
-## User Experience Flow
+## Example Questions (for Empty State chips)
 
-1. **Text Question:** User types question → Click "Get Solution" → AI generates answer
-2. **Image Question:** User uploads image → OCR extracts text (progress bar shown) → Text appears in textarea → User clicks "Get Solution" → AI generates answer
+1. "Prepare journal entries for purchase of machinery"
+2. "Explain depreciation methods with examples"
+3. "Trial balance from given ledger accounts"
+4. "Bank reconciliation statement"
+5. "Rectification of errors in trial balance"
 
 ---
 
-## Important Notes
+## Key UI Elements
 
-- **Tesseract.js** browser mein run hota hai, koi API key nahi chahiye
-- **Lovable AI** already configured hai with `LOVABLE_API_KEY` secret
-- OCR mein 5-15 seconds lag sakte hain image size ke according
-- Hindi + English dono languages support hongi OCR mein
+### 1. Message Bubbles
+- User: Right aligned, primary color background, rounded corners
+- AI: Left aligned, card background, avatar on left
+
+### 2. Input Bar
+- Full width with max-width
+- Rounded pill shape
+- Paperclip icon for image upload
+- Send arrow button
+- Subtle shadow and border
+
+### 3. Accordion Steps
+- Expandable/collapsible sections
+- Number badges for each step
+- Final answer highlighted with checkmark
+
+### 4. Loading State
+- Typing indicator with bouncing dots
+- "Generating solution..." text
+- Skeleton placeholder for content
+
+---
+
+## Animations to Add
+
+```css
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce-dots {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+  50% { box-shadow: 0 0 0 8px hsl(var(--primary) / 0); }
+}
+```
+
+---
+
+## Mobile Responsiveness
+
+- Input bar adapts to full width on mobile
+- Message bubbles use max-width: 90% on mobile
+- Smaller padding and margins
+- Touch-friendly button sizes
+- Keyboard-aware layout (input stays visible)
 
