@@ -1,11 +1,9 @@
-import { useState, useRef } from "react";
-import { Upload, FileText, Loader2, Download, Sparkles, ImageIcon } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
-import { StepDisplay } from "@/components/StepDisplay";
 import { AdBanner } from "@/components/ui/AdBanner";
+import { ChatMessage, ChatInput, EmptyState } from "@/components/chat";
 import { toast } from "sonner";
 import { useOCR } from "@/hooks/useOCR";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,14 +13,17 @@ interface SolutionStep {
   content: string;
 }
 
-interface Solution {
-  question: string;
-  steps: SolutionStep[];
-  finalAnswer: string;
+interface Message {
+  id: string;
+  type: "user" | "ai";
+  content: string;
+  steps?: SolutionStep[];
+  finalAnswer?: string;
+  isLoading?: boolean;
 }
 
 // Parse AI response into structured steps
-const parseAIResponse = (question: string, aiResponse: string): Solution => {
+const parseAIResponse = (aiResponse: string): { steps: SolutionStep[]; finalAnswer: string } => {
   const steps: SolutionStep[] = [];
   
   // Extract Step 1: Journal Entry
@@ -58,64 +59,90 @@ const parseAIResponse = (question: string, aiResponse: string): Solution => {
     steps.push({ title: "Solution", content: aiResponse });
   }
   
-  return { question, steps, finalAnswer };
+  return { steps, finalAnswer };
 };
 
 export default function AskQuestion() {
-  const [question, setQuestion] = useState("");
-  const [solution, setSolution] = useState<Solution | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showAdForDownload, setShowAdForDownload] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { extractText, isProcessing: isOCRProcessing, progress: ocrProgress } = useOCR();
 
-  const handleSubmit = async () => {
-    if (!question.trim()) {
-      toast.error("Please enter a question");
-      return;
-    }
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
+  const handleSubmit = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: "user",
+      content: inputValue.trim(),
+    };
+
+    // Add user message and loading AI message
+    const loadingMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      type: "ai",
+      content: "",
+      isLoading: true,
+    };
+
+    setMessages(prev => [...prev, userMessage, loadingMessage]);
+    setInputValue("");
     setIsLoading(true);
-    setSolution(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('solve-question', {
-        body: { question: question.trim() }
+      const { data, error } = await supabase.functions.invoke("solve-question", {
+        body: { question: userMessage.content }
       });
 
       if (error) {
         console.error("Edge function error:", error);
         toast.error(error.message || "Failed to generate solution");
+        // Remove loading message
+        setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
         return;
       }
 
       if (data?.error) {
         toast.error(data.error);
+        setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
         return;
       }
 
       if (data?.solution) {
-        const parsedSolution = parseAIResponse(question, data.solution);
-        setSolution(parsedSolution);
+        const { steps, finalAnswer } = parseAIResponse(data.solution);
+        
+        // Update loading message with actual content
+        setMessages(prev => prev.map(m => 
+          m.id === loadingMessage.id
+            ? { ...m, isLoading: false, steps, finalAnswer, content: data.solution }
+            : m
+        ));
         toast.success("Solution generated!");
       } else {
         toast.error("No solution received from AI");
+        setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
       }
     } catch (err) {
       console.error("Submit error:", err);
       toast.error("Failed to connect to AI service");
+      setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  const handleFileUpload = async (file: File) => {
     // Check if it's an image
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast.error("Please upload an image file (JPG, PNG, etc.)");
       return;
     }
@@ -126,7 +153,7 @@ export default function AskQuestion() {
       const extractedText = await extractText(file);
       
       if (extractedText.trim()) {
-        setQuestion(extractedText.trim());
+        setInputValue(extractedText.trim());
         toast.success("Text extracted! You can now get the solution.");
       } else {
         toast.error("No text found in the image. Please try a clearer image.");
@@ -135,11 +162,10 @@ export default function AskQuestion() {
       console.error("OCR error:", err);
       toast.error("Failed to extract text from image");
     }
+  };
 
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+  const handleExampleClick = (question: string) => {
+    setInputValue(question);
   };
 
   const handleDownload = () => {
@@ -147,34 +173,40 @@ export default function AskQuestion() {
   };
 
   const proceedWithDownload = () => {
-    if (!solution) return;
+    // Get the last AI message with steps
+    const lastAIMessage = [...messages].reverse().find(m => m.type === "ai" && m.steps);
+    if (!lastAIMessage) return;
+    
+    // Find the corresponding user message
+    const aiIndex = messages.findIndex(m => m.id === lastAIMessage.id);
+    const userMessage = messages.slice(0, aiIndex).reverse().find(m => m.type === "user");
     
     const content = `
 ACCOUNTANCY SOLUTION
 ====================
 
 QUESTION:
-${solution.question}
+${userMessage?.content || "N/A"}
 
-${solution.steps.map((step, i) => `
+${lastAIMessage.steps?.map((step, i) => `
 STEP ${i + 1}: ${step.title}
-${'-'.repeat(40)}
+${"-".repeat(40)}
 ${step.content}
-`).join('\n')}
+`).join("\n")}
 
 FINAL ANSWER:
-${solution.finalAnswer}
+${lastAIMessage.finalAnswer}
 
 ---
 Generated by AccountancyAI
 CBSE Class 11 & 12 Accountancy Solutions
     `.trim();
 
-    const blob = new Blob([content], { type: 'text/plain' });
+    const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'accountancy-solution.txt';
+    a.download = "accountancy-solution.txt";
     a.click();
     URL.revokeObjectURL(url);
     
@@ -182,149 +214,99 @@ CBSE Class 11 & 12 Accountancy Solutions
     toast.success("Solution downloaded!");
   };
 
+  const hasMessages = messages.length > 0;
+  const hasAISolution = messages.some(m => m.type === "ai" && m.steps);
+
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container max-w-4xl">
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-foreground">Ask a Question</h1>
-          <p className="text-muted-foreground">
-            Upload or type your CBSE Accountancy question and get step-by-step solutions
-          </p>
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-background">
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="container max-w-4xl py-6">
+          {!hasMessages ? (
+            <EmptyState onExampleClick={handleExampleClick} />
+          ) : (
+            <div className="space-y-6 pb-4">
+              {messages.map((message) => (
+                <ChatMessage
+                  key={message.id}
+                  type={message.type}
+                  content={message.content}
+                  steps={message.steps}
+                  finalAnswer={message.finalAnswer}
+                  isLoading={message.isLoading}
+                />
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
         </div>
-
-        <AdBanner className="mb-8" />
-
-        <Card className="mb-8 border-border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <FileText className="h-5 w-5 text-primary" />
-              Enter Your Question
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Type your question or upload an image of your problem
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Textarea
-              placeholder="Example: Prepare journal entries and ledger for purchase of furniture on credit Rs. 50,000"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              className="min-h-[120px] border-input bg-background text-foreground"
-              disabled={isOCRProcessing}
-            />
-            
-            {/* OCR Progress Bar */}
-            {isOCRProcessing && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <ImageIcon className="h-4 w-4 animate-pulse" />
-                  <span>Extracting text from image... {ocrProgress}%</span>
-                </div>
-                <Progress value={ocrProgress} className="h-2" />
-              </div>
-            )}
-            
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button
-                onClick={handleSubmit}
-                disabled={isLoading || isOCRProcessing || !question.trim()}
-                className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Generating Solution...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    Get Solution
-                  </>
-                )}
-              </Button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept="image/*"
-                className="hidden"
-              />
-              <Button
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isOCRProcessing || isLoading}
-                className="gap-2 border-border text-foreground hover:bg-secondary"
-              >
-                {isOCRProcessing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4" />
-                    Upload Image
-                  </>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {solution && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground">Solution</h2>
-              <Button
-                onClick={handleDownload}
-                variant="outline"
-                className="gap-2 border-border text-foreground hover:bg-secondary"
-              >
-                <Download className="h-4 w-4" />
-                Download PDF
-              </Button>
-            </div>
-            
-            <StepDisplay
-              question={solution.question}
-              steps={solution.steps}
-              finalAnswer={solution.finalAnswer}
-            />
-          </div>
-        )}
-
-        {/* Download Ad Modal */}
-        {showAdForDownload && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4">
-            <Card className="w-full max-w-md border-border bg-card">
-              <CardHeader>
-                <CardTitle className="text-foreground">Watch Ad to Download</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Please view the advertisement below to proceed with download
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <AdBanner variant="inline" />
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowAdForDownload(false)}
-                    className="flex-1 border-border text-foreground hover:bg-secondary"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={proceedWithDownload}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    Download Now
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
+
+      {/* Bottom Section */}
+      <div className="border-t border-border bg-background/80 backdrop-blur-sm py-4">
+        {/* Download Button - Show only when there's a solution */}
+        {hasAISolution && (
+          <div className="container max-w-3xl mb-3 flex justify-center">
+            <Button
+              onClick={handleDownload}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-border text-foreground hover:bg-secondary"
+            >
+              <Download className="h-4 w-4" />
+              Download Solution
+            </Button>
+          </div>
+        )}
+
+        {/* Chat Input */}
+        <ChatInput
+          value={inputValue}
+          onChange={setInputValue}
+          onSubmit={handleSubmit}
+          onFileUpload={handleFileUpload}
+          isLoading={isLoading}
+          isOCRProcessing={isOCRProcessing}
+          ocrProgress={ocrProgress}
+        />
+
+        {/* Ad Banner - Non-intrusive */}
+        <div className="container max-w-3xl mt-4">
+          <AdBanner className="opacity-80" />
+        </div>
+      </div>
+
+      {/* Download Ad Modal */}
+      {showAdForDownload && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4">
+          <Card className="w-full max-w-md border-border bg-card animate-scale-in">
+            <CardHeader>
+              <CardTitle className="text-foreground">Watch Ad to Download</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Please view the advertisement below to proceed with download
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <AdBanner variant="inline" />
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAdForDownload(false)}
+                  className="flex-1 border-border text-foreground hover:bg-secondary"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={proceedWithDownload}
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Download Now
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
