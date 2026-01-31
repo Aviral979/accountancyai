@@ -1,11 +1,14 @@
 import { useState, useRef } from "react";
-import { Upload, FileText, Loader2, Download, Sparkles } from "lucide-react";
+import { Upload, FileText, Loader2, Download, Sparkles, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { StepDisplay } from "@/components/StepDisplay";
 import { AdBanner } from "@/components/ui/AdBanner";
 import { toast } from "sonner";
+import { useOCR } from "@/hooks/useOCR";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SolutionStep {
   title: string;
@@ -18,106 +21,44 @@ interface Solution {
   finalAnswer: string;
 }
 
-// Simulated AI response - in production, this would call an actual AI API
-const generateSolution = (question: string): Solution => {
-  // Parse the question to generate appropriate response
-  const lowerQuestion = question.toLowerCase();
+// Parse AI response into structured steps
+const parseAIResponse = (question: string, aiResponse: string): Solution => {
+  const steps: SolutionStep[] = [];
   
-  if (lowerQuestion.includes("furniture") && lowerQuestion.includes("credit")) {
-    return {
-      question: question,
-      steps: [
-        {
-          title: "Journal Entry",
-          content: `Date        Particulars                      L.F.    Debit (₹)    Credit (₹)
-────────────────────────────────────────────────────────────────────────────
-            Furniture A/C                     Dr      50,000
-                To Creditor A/C                                   50,000
-            (Being furniture purchased on credit)`
-        },
-        {
-          title: "Ledger Posting",
-          content: `                    FURNITURE ACCOUNT
-────────────────────────────────────────────────────────────────────────────
-Dr.                                                                      Cr.
-Date    Particulars     J.F.    Amount(₹) │ Date    Particulars    J.F.   Amount(₹)
-────────────────────────────────────────────────────────────────────────────
-        To Creditor A/c          50,000   │
-────────────────────────────────────────────────────────────────────────────
-
-                    CREDITOR ACCOUNT
-────────────────────────────────────────────────────────────────────────────
-Dr.                                                                      Cr.
-Date    Particulars     J.F.    Amount(₹) │ Date    Particulars    J.F.   Amount(₹)
-────────────────────────────────────────────────────────────────────────────
-                                          │         By Furniture A/c       50,000
-────────────────────────────────────────────────────────────────────────────`
-        },
-        {
-          title: "Trial Balance (Extract)",
-          content: `                    TRIAL BALANCE
-                    as on [Date]
-────────────────────────────────────────────────────────────────────────────
-Account Name                              Debit (₹)        Credit (₹)
-────────────────────────────────────────────────────────────────────────────
-Furniture                                 50,000           
-Creditor                                                   50,000
-────────────────────────────────────────────────────────────────────────────
-Total                                     50,000           50,000`
-        },
-        {
-          title: "Calculations",
-          content: `No additional calculations required for this transaction.
-
-Note: 
-- Furniture is a Fixed Asset (Real Account) - Debit what comes in
-- Creditor is a Personal Account - Credit the giver`
-        }
-      ],
-      finalAnswer: "Furniture purchased on credit for ₹50,000 has been recorded. The Furniture Account is debited (asset increases) and Creditor Account is credited (liability increases). The trial balance is balanced."
-    };
+  // Extract Step 1: Journal Entry
+  const journalMatch = aiResponse.match(/\*\*Step 1: Journal Entry\*\*([\s\S]*?)(?=\*\*Step 2:|$)/i);
+  if (journalMatch) {
+    steps.push({ title: "Journal Entry", content: journalMatch[1].trim() });
   }
   
-  // Default response for other questions
-  return {
-    question: question,
-    steps: [
-      {
-        title: "Journal Entry",
-        content: `Analyzing your question...
-
-Please provide the specific transaction details for accurate journal entries.
-Include: Amount, nature of transaction, cash/credit, and parties involved.`
-      },
-      {
-        title: "Ledger Posting",
-        content: `Ledger entries will be prepared based on the journal entries.
-
-Format:
-- Real Account: Debit what comes in, Credit what goes out
-- Personal Account: Debit the receiver, Credit the giver
-- Nominal Account: Debit expenses/losses, Credit incomes/gains`
-      },
-      {
-        title: "Trial Balance",
-        content: `Trial Balance will be extracted showing:
-- All debit balances in the Debit column
-- All credit balances in the Credit column
-- Total of both columns should match`
-      },
-      {
-        title: "Calculations",
-        content: `Please provide complete transaction details for specific calculations.
-
-Common calculations include:
-- Depreciation
-- Interest calculations
-- Ratio analysis
-- Profit/Loss computation`
-      }
-    ],
-    finalAnswer: "Please provide complete transaction details for a comprehensive step-by-step solution aligned with CBSE syllabus."
-  };
+  // Extract Step 2: Ledger Posting
+  const ledgerMatch = aiResponse.match(/\*\*Step 2: Ledger Posting\*\*([\s\S]*?)(?=\*\*Step 3:|$)/i);
+  if (ledgerMatch) {
+    steps.push({ title: "Ledger Posting", content: ledgerMatch[1].trim() });
+  }
+  
+  // Extract Step 3: Trial Balance
+  const trialMatch = aiResponse.match(/\*\*Step 3: Trial Balance\*\*([\s\S]*?)(?=\*\*Step 4:|$)/i);
+  if (trialMatch) {
+    steps.push({ title: "Trial Balance", content: trialMatch[1].trim() });
+  }
+  
+  // Extract Step 4: Calculations
+  const calcMatch = aiResponse.match(/\*\*Step 4: Calculations\*\*([\s\S]*?)(?=\*\*Final Answer:|$)/i);
+  if (calcMatch) {
+    steps.push({ title: "Calculations", content: calcMatch[1].trim() });
+  }
+  
+  // Extract Final Answer
+  const finalMatch = aiResponse.match(/\*\*Final Answer:\*\*([\s\S]*?)$/i);
+  const finalAnswer = finalMatch ? finalMatch[1].trim() : "Solution generated successfully.";
+  
+  // If parsing failed, use the whole response
+  if (steps.length === 0) {
+    steps.push({ title: "Solution", content: aiResponse });
+  }
+  
+  return { question, steps, finalAnswer };
 };
 
 export default function AskQuestion() {
@@ -126,6 +67,8 @@ export default function AskQuestion() {
   const [isLoading, setIsLoading] = useState(false);
   const [showAdForDownload, setShowAdForDownload] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const { extractText, isProcessing: isOCRProcessing, progress: ocrProgress } = useOCR();
 
   const handleSubmit = async () => {
     if (!question.trim()) {
@@ -136,21 +79,66 @@ export default function AskQuestion() {
     setIsLoading(true);
     setSolution(null);
 
-    // Simulate AI processing time
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const { data, error } = await supabase.functions.invoke('solve-question', {
+        body: { question: question.trim() }
+      });
 
-    const result = generateSolution(question);
-    setSolution(result);
-    setIsLoading(false);
-    toast.success("Solution generated!");
+      if (error) {
+        console.error("Edge function error:", error);
+        toast.error(error.message || "Failed to generate solution");
+        return;
+      }
+
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      if (data?.solution) {
+        const parsedSolution = parseAIResponse(question, data.solution);
+        setSolution(parsedSolution);
+        toast.success("Solution generated!");
+      } else {
+        toast.error("No solution received from AI");
+      }
+    } catch (err) {
+      console.error("Submit error:", err);
+      toast.error("Failed to connect to AI service");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      // In a real app, we would use OCR or document parsing
-      toast.info("File uploaded! Processing...");
-      setQuestion(`[Uploaded: ${file.name}] Please solve the accountancy problem shown in this file.`);
+    if (!file) return;
+
+    // Check if it's an image
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please upload an image file (JPG, PNG, etc.)");
+      return;
+    }
+
+    toast.info("Extracting text from image...");
+
+    try {
+      const extractedText = await extractText(file);
+      
+      if (extractedText.trim()) {
+        setQuestion(extractedText.trim());
+        toast.success("Text extracted! You can now get the solution.");
+      } else {
+        toast.error("No text found in the image. Please try a clearer image.");
+      }
+    } catch (err) {
+      console.error("OCR error:", err);
+      toast.error("Failed to extract text from image");
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -161,7 +149,6 @@ export default function AskQuestion() {
   const proceedWithDownload = () => {
     if (!solution) return;
     
-    // Create text content for PDF
     const content = `
 ACCOUNTANCY SOLUTION
 ====================
@@ -214,7 +201,7 @@ CBSE Class 11 & 12 Accountancy Solutions
               Enter Your Question
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Type your question or upload an image/PDF of your problem
+              Type your question or upload an image of your problem
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -223,11 +210,24 @@ CBSE Class 11 & 12 Accountancy Solutions
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               className="min-h-[120px] border-input bg-background text-foreground"
+              disabled={isOCRProcessing}
             />
+            
+            {/* OCR Progress Bar */}
+            {isOCRProcessing && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <ImageIcon className="h-4 w-4 animate-pulse" />
+                  <span>Extracting text from image... {ocrProgress}%</span>
+                </div>
+                <Progress value={ocrProgress} className="h-2" />
+              </div>
+            )}
+            
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button
                 onClick={handleSubmit}
-                disabled={isLoading || !question.trim()}
+                disabled={isLoading || isOCRProcessing || !question.trim()}
                 className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {isLoading ? (
@@ -246,16 +246,26 @@ CBSE Class 11 & 12 Accountancy Solutions
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileUpload}
-                accept="image/*,.pdf"
+                accept="image/*"
                 className="hidden"
               />
               <Button
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
+                disabled={isOCRProcessing || isLoading}
                 className="gap-2 border-border text-foreground hover:bg-secondary"
               >
-                <Upload className="h-4 w-4" />
-                Upload File
+                {isOCRProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4" />
+                    Upload Image
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
