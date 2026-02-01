@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { BookOpen, FileQuestion, GraduationCap, Sparkles, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FeatureCard } from "@/components/FeatureCard";
-import { AdBanner } from "@/components/ui/AdBanner";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -76,11 +75,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-      {/* Ad Banner */}
-      <div className="container py-4">
-        <AdBanner />
-      </div>
 
       {/* Features Section */}
       <section className="py-16 md:py-24">

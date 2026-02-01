@@ -3,7 +3,6 @@ import { BookOpen, Download, Lock, Unlock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AdBanner } from "@/components/ui/AdBanner";
 import { chapters, Chapter } from "@/data/chapters";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -35,6 +34,17 @@ export default function Notes() {
   };
 
   const handleDownload = (chapter: Chapter) => {
+    // Check if chapter has a PDF
+    if (chapter.pdfUrl) {
+      const link = document.createElement('a');
+      link.href = chapter.pdfUrl;
+      link.download = `class-${chapter.class}-chapter-${chapter.number}-notes.pdf`;
+      link.click();
+      toast.success("PDF notes downloaded!");
+      return;
+    }
+
+    // Fallback to text content for chapters without PDF
     const content = `
 CBSE CLASS ${chapter.class} ACCOUNTANCY
 CHAPTER ${chapter.number}: ${chapter.title}
@@ -112,7 +122,7 @@ For CBSE Class ${chapter.class} Students
           </p>
         </div>
 
-        <AdBanner className="mb-8" />
+        
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Chapter List */}
@@ -194,7 +204,7 @@ For CBSE Class ${chapter.class} Students
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <AdBanner variant="inline" />
+                
                 <div className="flex gap-3">
                   <Button
                     variant="outline"

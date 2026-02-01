@@ -6,6 +6,7 @@ export interface Chapter {
   isFree: boolean;
   topics: string[];
   description: string;
+  pdfUrl?: string;
 }
 
 export const chapters: Chapter[] = [
@@ -167,6 +168,7 @@ export const chapters: Chapter[] = [
     title: "Accounting for Not-for-Profit Organisations",
     class: 12,
     isFree: true,
+    pdfUrl: "/notes/class-12-chapter-1.pdf",
     description: "Learn accounting for NGOs, clubs, and charitable organizations.",
     topics: [
       "Features of NPO",
@@ -182,6 +184,7 @@ export const chapters: Chapter[] = [
     title: "Accounting for Partnership: Basic Concepts",
     class: 12,
     isFree: true,
+    pdfUrl: "/notes/class-12-chapter-2.pdf",
     description: "Understand partnership fundamentals and profit distribution.",
     topics: [
       "Nature of Partnership",
