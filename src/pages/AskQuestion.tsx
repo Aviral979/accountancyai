@@ -3,7 +3,6 @@ import { Download } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AdBanner } from "@/components/ui/AdBanner";
 import { ChatMessage, ChatInput, EmptyState } from "@/components/chat";
 import { toast } from "sonner";
 import { useOCR } from "@/hooks/useOCR";
@@ -312,10 +311,6 @@ export default function AskQuestion() {
           ocrProgress={ocrProgress}
         />
 
-        {/* Ad Banner - Non-intrusive */}
-        <div className="container max-w-3xl mt-4">
-          <AdBanner className="opacity-80" />
-        </div>
       </div>
 
       {/* Download Ad Modal */}
@@ -329,7 +324,7 @@ export default function AskQuestion() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <AdBanner variant="inline" />
+              
               <div className="flex gap-3">
                 <Button
                   variant="outline"

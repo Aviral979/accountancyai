@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { AdBanner } from "@/components/ui/AdBanner";
 import { quizzes, Quiz, QuizQuestion } from "@/data/quizzes";
 import { chapters } from "@/data/chapters";
 import { toast } from "sonner";
@@ -90,7 +89,7 @@ export default function QuizPage() {
           </p>
         </div>
 
-        <AdBanner className="mb-8" />
+        
 
         {!selectedQuiz ? (
           // Quiz Selection
@@ -282,7 +281,7 @@ export default function QuizPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <AdBanner variant="inline" />
+                
                 <div className="flex gap-3">
                   <Button
                     variant="outline"
