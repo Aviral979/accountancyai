@@ -1,293 +1,148 @@
 
 
-# Ask Question Page - ChatGPT/Gemini Style UI Redesign
+# Ad Removal + PDF Notes Integration Plan
 
 ## Overview
-Current UI ko transform karenge ek modern chat interface mein jaise ChatGPT aur Gemini ka UI hota hai - centered input box at bottom, conversation-style messages, aur clean minimal design.
+Is plan mein do kaam karenge:
+1. **Saari Ad spaces remove** - App mein jahan bhi AdBanner component use ho raha hai wahan se hata denge
+2. **PDF notes add** - Uploaded PDF files ko Class 12 Chapter 1 aur Chapter 2 ke saath link karenge
 
 ---
 
-## Current State vs Target State
+## Part 1: Remove All Advertisement Spaces
 
-### Current UI Issues:
-- Form-based layout with card wrapper
-- Input field at top of page
-- Traditional form submit pattern
-- Solution display in separate cards below
+### Files with AdBanner (Total 4 files):
 
-### Target UI (ChatGPT/Gemini Style):
-- Clean, minimal centered layout
-- Input bar fixed at bottom of screen
-- Chat bubble style messages
-- User question on right, AI response on left
-- Smooth typing animations
-- Avatar icons for user and AI
-- Collapsible step-by-step sections
+| File | Location | Action |
+|------|----------|--------|
+| `src/pages/Index.tsx` | Line 80-83 | Remove ad banner section |
+| `src/pages/Notes.tsx` | Line 115 | Remove top ad banner |
+| `src/pages/Notes.tsx` | Line 197 | Remove ad from unlock modal |
+| `src/pages/AskQuestion.tsx` | Line 315-318 | Remove bottom ad banner |
+| `src/pages/AskQuestion.tsx` | Line 332 | Remove ad from download modal |
+| `src/pages/Quiz.tsx` | Line 93 | Remove top ad banner |
+| `src/pages/Quiz.tsx` | Line 285 | Remove ad from results modal |
+
+### AdBanner Component:
+- `src/components/ui/AdBanner.tsx` - Delete this file (ab use nahi hoga)
 
 ---
 
-## Visual Design Plan
+## Part 2: Add PDF Notes to Class 12 Chapters
+
+### PDF Files:
+1. **Chapter_1_Accounting_for_Not-for-Profit_Organisations.pdf** 
+   - Chapter 1 Class 12 ke liye
+   - Topics: NPO accounting, Receipts & Payments, Income & Expenditure Account
+
+2. **Chapter_2_Accounting_for_Partnership_Basic_Concepts.pdf**
+   - Chapter 2 Class 12 ke liye  
+   - Topics: Goodwill Nature and Valuation
+
+### Implementation:
+
+#### Step 1: Copy PDFs to Public Folder
+Files ko `public/notes/` folder mein copy karenge taaki downloadable ho sakein.
 
 ```text
-┌────────────────────────────────────────────────────────────────┐
-│                     AccountancyAI (Header)                      │
-├────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│                    Empty State / Welcome                         │
-│                    "Ask any Accountancy                          │
-│                     Question"                                    │
-│                                                                  │
-│              [Example question chips to click]                   │
-│                                                                  │
-├────────────────────────────────────────────────────────────────┤
-│              OR (After conversation starts)                      │
-├────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│                              ┌─────────────────────────────┐    │
-│                              │ User's question bubble  👤  │    │
-│                              └─────────────────────────────┘    │
-│                                                                  │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │  🤖 AI Response with collapsible steps                   │    │
-│  │                                                          │    │
-│  │  ▼ Step 1: Journal Entry                                 │    │
-│  │  ▼ Step 2: Ledger Posting                                │    │
-│  │  ▼ Step 3: Trial Balance                                 │    │
-│  │  ✓ Final Answer: ...                                     │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                  │
-├────────────────────────────────────────────────────────────────┤
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │ 📎 [Type your accountancy question...]        [↑ Send]   │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│              ⬆️ Image    Progress bar (if OCR running)          │
-└────────────────────────────────────────────────────────────────┘
+public/
+└── notes/
+    ├── class-12-chapter-1.pdf
+    └── class-12-chapter-2.pdf
 ```
 
----
+#### Step 2: Update Chapter Data Structure
+`src/data/chapters.ts` mein PDF path add karenge:
 
-## Implementation Steps
-
-### Step 1: Create ChatMessage Component
-Naya component banayenge jo messages ko bubble style mein display karega.
-
-**File:** `src/components/ChatMessage.tsx`
-
-**Features:**
-- User message bubble (right aligned, primary color)
-- AI message bubble (left aligned, with avatar)
-- Support for markdown rendering in AI responses
-- Collapsible accordion for steps
-- Copy button on AI responses
-- Timestamp display
-
----
-
-### Step 2: Create ChatInput Component
-Bottom-fixed input component banayenge.
-
-**File:** `src/components/ChatInput.tsx`
-
-**Features:**
-- Rounded input box with send button
-- Attach image button on left side
-- Auto-resize textarea (grows with content)
-- Send on Enter, Shift+Enter for new line
-- Disabled state during loading
-- OCR progress indicator overlay
-- Beautiful focus states and animations
-
----
-
-### Step 3: Create EmptyState Component
-Welcome screen jab koi conversation nahi hai.
-
-**File:** `src/components/EmptyState.tsx`
-
-**Features:**
-- Centered welcome message
-- App logo with gradient
-- "What can I help you with?" heading
-- Example question chips that user can click
-- Subtle animations
-
----
-
-### Step 4: Create TypingIndicator Component
-Loading animation jab AI thinking kar raha hai.
-
-**File:** `src/components/TypingIndicator.tsx`
-
-**Features:**
-- Three bouncing dots animation
-- "AI is thinking..." text
-- Matches AI avatar style
-
----
-
-### Step 5: Update StepDisplay for Accordion Style
-Existing StepDisplay ko collapsible accordion style mein update karenge.
-
-**File:** `src/components/StepDisplay.tsx`
-
-**Changes:**
-- Replace cards with accordion items
-- Add collapse/expand animations
-- More compact design
-- Better integration with chat bubbles
-
----
-
-### Step 6: Redesign AskQuestion Page
-Main page ko completely redesign karenge.
-
-**File:** `src/pages/AskQuestion.tsx`
-
-**Changes:**
-1. Remove card-based layout
-2. Add flex column layout with:
-   - Scrollable message area (middle)
-   - Fixed input bar (bottom)
-3. Implement conversation state (array of messages)
-4. Each message has: type (user/ai), content, timestamp
-5. Empty state when no messages
-6. Auto-scroll to bottom on new messages
-7. Keyboard shortcuts (Enter to send)
-8. Ad banner positioned non-intrusively
-
----
-
-### Step 7: Add New CSS Animations
-Smooth transitions aur animations add karenge.
-
-**File:** `src/index.css`
-
-**New Animations:**
-- Message fade-in slide-up
-- Typing dots bounce
-- Smooth scroll behavior
-- Input focus glow
-
----
-
-## Technical Details
-
-### Conversation State Structure:
 ```typescript
-interface Message {
+export interface Chapter {
   id: string;
-  type: 'user' | 'ai';
-  content: string;
-  timestamp: Date;
-  steps?: SolutionStep[]; // For AI messages
-  finalAnswer?: string;   // For AI messages
-  isLoading?: boolean;    // For AI thinking state
+  number: number;
+  title: string;
+  class: 11 | 12;
+  isFree: boolean;
+  topics: string[];
+  description: string;
+  pdfUrl?: string;  // New field for PDF link
 }
-
-const [messages, setMessages] = useState<Message[]>([]);
 ```
 
-### Auto-scroll Implementation:
-```typescript
-const messagesEndRef = useRef<HTMLDivElement>(null);
+#### Step 3: Update Notes Page
+`src/pages/Notes.tsx` mein download button ko PDF download se connect karenge:
 
-useEffect(() => {
-  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-}, [messages]);
-```
+- Agar chapter mein `pdfUrl` hai, toh actual PDF download hoga
+- Agar `pdfUrl` nahi hai, toh current text download chalega
 
-### Auto-resize Textarea:
+---
+
+## Files to Modify/Delete
+
+| File | Action | Changes |
+|------|--------|---------|
+| `src/pages/Index.tsx` | Modify | Remove AdBanner import aur component |
+| `src/pages/Notes.tsx` | Modify | Remove ads + update download for PDFs |
+| `src/pages/AskQuestion.tsx` | Modify | Remove all AdBanner components |
+| `src/pages/Quiz.tsx` | Modify | Remove all AdBanner components |
+| `src/components/ui/AdBanner.tsx` | Delete | Ab zaroorat nahi |
+| `src/data/chapters.ts` | Modify | Add pdfUrl field for Class 12 Ch 1 & 2 |
+| `public/notes/class-12-chapter-1.pdf` | Create | Copy PDF file |
+| `public/notes/class-12-chapter-2.pdf` | Create | Copy PDF file |
+
+---
+
+## Updated User Flow
+
+### Notes Page (After Changes):
+1. User clicks on Class 12 Chapter 1 or 2
+2. Chapter details panel opens (no ad modal since isFree = true)
+3. User clicks "Download Notes"
+4. Actual PDF file downloads (not text file)
+
+### Other Chapters:
+- Chapters without PDF will still download text notes
+- Future PDFs can be easily added by setting `pdfUrl`
+
+---
+
+## Technical Implementation Details
+
+### Download Logic Update:
 ```typescript
-const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  e.target.style.height = 'auto';
-  e.target.style.height = `${Math.min(e.target.scrollHeight, 200)}px`;
+const handleDownload = (chapter: Chapter) => {
+  if (chapter.pdfUrl) {
+    // Direct PDF download
+    const link = document.createElement('a');
+    link.href = chapter.pdfUrl;
+    link.download = `chapter-${chapter.number}-notes.pdf`;
+    link.click();
+  } else {
+    // Fallback to text content generation
+    // ... existing text download logic
+  }
 };
 ```
 
----
-
-## Files to Create/Modify
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/components/ChatMessage.tsx` | Create | Message bubble component |
-| `src/components/ChatInput.tsx` | Create | Bottom input bar component |
-| `src/components/EmptyState.tsx` | Create | Welcome/empty state |
-| `src/components/TypingIndicator.tsx` | Create | AI thinking animation |
-| `src/components/StepDisplay.tsx` | Modify | Convert to accordion style |
-| `src/pages/AskQuestion.tsx` | Modify | Complete redesign |
-| `src/index.css` | Modify | Add new animations |
-| `tailwind.config.ts` | Modify | Add new keyframes |
-
----
-
-## Example Questions (for Empty State chips)
-
-1. "Prepare journal entries for purchase of machinery"
-2. "Explain depreciation methods with examples"
-3. "Trial balance from given ledger accounts"
-4. "Bank reconciliation statement"
-5. "Rectification of errors in trial balance"
-
----
-
-## Key UI Elements
-
-### 1. Message Bubbles
-- User: Right aligned, primary color background, rounded corners
-- AI: Left aligned, card background, avatar on left
-
-### 2. Input Bar
-- Full width with max-width
-- Rounded pill shape
-- Paperclip icon for image upload
-- Send arrow button
-- Subtle shadow and border
-
-### 3. Accordion Steps
-- Expandable/collapsible sections
-- Number badges for each step
-- Final answer highlighted with checkmark
-
-### 4. Loading State
-- Typing indicator with bouncing dots
-- "Generating solution..." text
-- Skeleton placeholder for content
-
----
-
-## Animations to Add
-
-```css
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes bounce-dots {
-  0%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-6px); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
-  50% { box-shadow: 0 0 0 8px hsl(var(--primary) / 0); }
+### Chapter Data Update:
+```typescript
+{
+  id: "12-1",
+  number: 1,
+  title: "Accounting for Not-for-Profit Organisations",
+  class: 12,
+  isFree: true,
+  pdfUrl: "/notes/class-12-chapter-1.pdf",
+  // ... rest of data
 }
 ```
 
 ---
 
-## Mobile Responsiveness
+## Summary of Changes
 
-- Input bar adapts to full width on mobile
-- Message bubbles use max-width: 90% on mobile
-- Smaller padding and margins
-- Touch-friendly button sizes
-- Keyboard-aware layout (input stays visible)
+| Category | Before | After |
+|----------|--------|-------|
+| Ad Spaces | 7 locations | 0 (all removed) |
+| Class 12 Ch 1 Notes | Text only | Actual PDF |
+| Class 12 Ch 2 Notes | Text only | Actual PDF |
+| AdBanner Component | Exists | Deleted |
 
