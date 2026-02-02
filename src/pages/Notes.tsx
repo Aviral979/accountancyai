@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { BookOpen, Download, Lock, Unlock, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { BookOpen, Lock, Unlock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 export default function Notes() {
-  const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
+  const navigate = useNavigate();
   const [showAdModal, setShowAdModal] = useState(false);
   const [pendingChapter, setPendingChapter] = useState<Chapter | null>(null);
 
@@ -17,7 +18,7 @@ export default function Notes() {
 
   const handleChapterClick = (chapter: Chapter) => {
     if (chapter.isFree) {
-      setSelectedChapter(chapter);
+      navigate(`/notes/${chapter.id}`);
     } else {
       setPendingChapter(chapter);
       setShowAdModal(true);
@@ -26,58 +27,19 @@ export default function Notes() {
 
   const proceedAfterAd = () => {
     if (pendingChapter) {
-      setSelectedChapter(pendingChapter);
+      navigate(`/notes/${pendingChapter.id}`);
       setPendingChapter(null);
     }
     setShowAdModal(false);
     toast.success("Content unlocked!");
   };
 
-  const handleDownload = (chapter: Chapter) => {
-    // Check if chapter has a PDF
-    if (chapter.pdfUrl) {
-      const link = document.createElement('a');
-      link.href = chapter.pdfUrl;
-      link.download = `class-${chapter.class}-chapter-${chapter.number}-notes.pdf`;
-      link.click();
-      toast.success("PDF notes downloaded!");
-      return;
-    }
-
-    // Fallback to text content for chapters without PDF
-    const content = `
-CBSE CLASS ${chapter.class} ACCOUNTANCY
-CHAPTER ${chapter.number}: ${chapter.title}
-${'='.repeat(50)}
-
-${chapter.description}
-
-TOPICS COVERED:
-${chapter.topics.map((topic, i) => `${i + 1}. ${topic}`).join('\n')}
-
----
-Notes from AccountancyAI
-For CBSE Class ${chapter.class} Students
-    `.trim();
-
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `chapter-${chapter.number}-notes.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("Notes downloaded!");
-  };
-
   const ChapterList = ({ chapters }: { chapters: Chapter[] }) => (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {chapters.map((chapter) => (
         <Card
           key={chapter.id}
-          className={`cursor-pointer border-border transition-all hover:shadow-md ${
-            selectedChapter?.id === chapter.id ? "ring-2 ring-primary" : ""
-          }`}
+          className="cursor-pointer border-border transition-all hover:shadow-md hover:border-primary/50"
           onClick={() => handleChapterClick(chapter)}
         >
           <CardHeader className="pb-2">
@@ -122,76 +84,19 @@ For CBSE Class ${chapter.class} Students
           </p>
         </div>
 
-        
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Chapter List */}
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="class11" className="w-full">
-              <TabsList className="mb-6 grid w-full grid-cols-2">
-                <TabsTrigger value="class11">Class 11</TabsTrigger>
-                <TabsTrigger value="class12">Class 12</TabsTrigger>
-              </TabsList>
-              <TabsContent value="class11">
-                <ChapterList chapters={class11Chapters} />
-              </TabsContent>
-              <TabsContent value="class12">
-                <ChapterList chapters={class12Chapters} />
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          {/* Selected Chapter Details */}
-          <div className="lg:col-span-1">
-            {selectedChapter ? (
-              <Card className="sticky top-24 border-border">
-                <CardHeader>
-                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <BookOpen className="h-6 w-6" />
-                  </div>
-                  <CardTitle className="text-foreground">
-                    Chapter {selectedChapter.number}
-                  </CardTitle>
-                  <CardDescription className="text-lg font-medium text-foreground">
-                    {selectedChapter.title}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground">{selectedChapter.description}</p>
-                  
-                  <div>
-                    <h4 className="mb-2 font-medium text-foreground">Topics Covered:</h4>
-                    <ul className="space-y-1.5">
-                      {selectedChapter.topics.map((topic, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                          <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary" />
-                          {topic}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <Button
-                    onClick={() => handleDownload(selectedChapter)}
-                    className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    <Download className="h-4 w-4" />
-                    Download Notes
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="sticky top-24 border-dashed border-border">
-                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                  <BookOpen className="mb-4 h-12 w-12 text-muted-foreground" />
-                  <p className="text-muted-foreground">
-                    Select a chapter to view details
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </div>
+        <Tabs defaultValue="class11" className="w-full">
+          <TabsList className="mb-6 grid w-full max-w-md mx-auto grid-cols-2">
+            <TabsTrigger value="class11">Class 11</TabsTrigger>
+            <TabsTrigger value="class12">Class 12</TabsTrigger>
+          </TabsList>
+          <TabsContent value="class11">
+            <ChapterList chapters={class11Chapters} />
+          </TabsContent>
+          <TabsContent value="class12">
+            <ChapterList chapters={class12Chapters} />
+          </TabsContent>
+        </Tabs>
 
         {/* Ad Modal for Locked Content */}
         {showAdModal && (

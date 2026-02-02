@@ -7,6 +7,7 @@ import { Navigation } from "@/components/ui/Navigation";
 import Index from "./pages/Index";
 import AskQuestion from "./pages/AskQuestion";
 import Notes from "./pages/Notes";
+import ChapterDetail from "./pages/ChapterDetail";
 import Quiz from "./pages/Quiz";
 import NotFound from "./pages/NotFound";
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/ask" element={<AskQuestion />} />
           <Route path="/notes" element={<Notes />} />
+          <Route path="/notes/:chapterId" element={<ChapterDetail />} />
           <Route path="/quiz" element={<Quiz />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
