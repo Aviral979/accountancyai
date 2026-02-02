@@ -200,6 +200,7 @@ export const chapters: Chapter[] = [
     title: "Goodwill: Nature and Valuation",
     class: 12,
     isFree: false,
+    pdfUrl: "/notes/class-12-chapter-3.pdf",
     description: "Learn about goodwill and its various valuation methods.",
     topics: [
       "Meaning and Features",
@@ -215,6 +216,7 @@ export const chapters: Chapter[] = [
     title: "Change in Profit Sharing Ratio",
     class: 12,
     isFree: false,
+    pdfUrl: "/notes/class-12-chapter-4.pdf",
     description: "Account for changes in profit sharing among partners.",
     topics: [
       "Reasons for Change",
@@ -230,6 +232,7 @@ export const chapters: Chapter[] = [
     title: "Admission of a Partner",
     class: 12,
     isFree: false,
+    pdfUrl: "/notes/class-12-chapter-5.pdf",
     description: "Learn accounting treatment when a new partner joins.",
     topics: [
       "New Profit Sharing Ratio",
@@ -242,24 +245,42 @@ export const chapters: Chapter[] = [
   {
     id: "12-6",
     number: 6,
-    title: "Retirement and Death of a Partner",
+    title: "Retirement of a Partner",
     class: 12,
     isFree: false,
-    description: "Account for partner retirement and death scenarios.",
+    pdfUrl: "/notes/class-12-chapter-6.pdf",
+    description: "Account for partner retirement scenarios.",
     topics: [
       "Gaining Ratio",
       "Treatment of Goodwill",
       "Revaluation of Assets",
       "Settlement of Amount Due",
-      "Death of Partner"
+      "Adjustment of Capital"
     ]
   },
   {
     id: "12-7",
     number: 7,
+    title: "Death of a Partner",
+    class: 12,
+    isFree: false,
+    pdfUrl: "/notes/class-12-chapter-7.pdf",
+    description: "Account for death of a partner and settlement of dues.",
+    topics: [
+      "Calculation of Deceased Partner's Share",
+      "Treatment of Goodwill",
+      "Share of Profit till Death",
+      "Settlement with Legal Representatives",
+      "Joint Life Policy"
+    ]
+  },
+  {
+    id: "12-8",
+    number: 8,
     title: "Dissolution of Partnership Firm",
     class: 12,
     isFree: false,
+    pdfUrl: "/notes/class-12-chapter-8.pdf",
     description: "Learn the process and accounting for firm dissolution.",
     topics: [
       "Modes of Dissolution",
@@ -270,11 +291,12 @@ export const chapters: Chapter[] = [
     ]
   },
   {
-    id: "12-8",
-    number: 8,
+    id: "12-9",
+    number: 9,
     title: "Accounting for Share Capital",
     class: 12,
     isFree: false,
+    pdfUrl: "/notes/class-12-chapter-9.pdf",
     description: "Understand company formation and share capital accounting.",
     topics: [
       "Types of Companies",
@@ -285,11 +307,12 @@ export const chapters: Chapter[] = [
     ]
   },
   {
-    id: "12-9",
-    number: 9,
+    id: "12-10",
+    number: 10,
     title: "Issue and Redemption of Debentures",
     class: 12,
     isFree: false,
+    pdfUrl: "/notes/class-12-chapter-10.pdf",
     description: "Learn about debentures and their accounting treatment.",
     topics: [
       "Types of Debentures",
@@ -300,18 +323,49 @@ export const chapters: Chapter[] = [
     ]
   },
   {
-    id: "12-10",
-    number: 10,
-    title: "Financial Statement Analysis",
+    id: "12-11",
+    number: 11,
+    title: "Financial Statements of a Company",
     class: 12,
     isFree: false,
-    description: "Analyze financial statements using various tools.",
+    pdfUrl: "/notes/class-12-chapter-11.pdf",
+    description: "Prepare and understand company financial statements.",
     topics: [
-      "Tools of Analysis",
-      "Comparative Statements",
-      "Common Size Statements",
-      "Trend Analysis",
-      "Interpretation"
+      "Statement of Profit and Loss",
+      "Balance Sheet Format",
+      "Schedule III Requirements",
+      "Notes to Accounts",
+      "Practical Problems"
+    ]
+  },
+  {
+    id: "12-12",
+    number: 12,
+    title: "Accounting Ratios",
+    class: 12,
+    isFree: false,
+    description: "Analyze financial statements using various ratios.",
+    topics: [
+      "Liquidity Ratios",
+      "Solvency Ratios",
+      "Activity Ratios",
+      "Profitability Ratios",
+      "Interpretation of Ratios"
+    ]
+  },
+  {
+    id: "12-13",
+    number: 13,
+    title: "Cash Flow Statement",
+    class: 12,
+    isFree: false,
+    description: "Prepare cash flow statements as per AS-3.",
+    topics: [
+      "Objectives and Benefits",
+      "Operating Activities",
+      "Investing Activities",
+      "Financing Activities",
+      "Preparation of Cash Flow Statement"
     ]
   }
 ];
