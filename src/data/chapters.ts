@@ -344,7 +344,6 @@ export const chapters: Chapter[] = [
     title: "Accounting Ratios",
     class: 12,
     isFree: false,
-    pdfUrl: "/notes/class-12-chapter-12.pdf",
     description: "Analyze financial statements using various ratios.",
     topics: [
       "Liquidity Ratios",
@@ -360,7 +359,6 @@ export const chapters: Chapter[] = [
     title: "Cash Flow Statement",
     class: 12,
     isFree: false,
-    pdfUrl: "/notes/class-12-chapter-13.pdf",
     description: "Prepare cash flow statements as per AS-3.",
     topics: [
       "Objectives and Benefits",
@@ -368,22 +366,6 @@ export const chapters: Chapter[] = [
       "Investing Activities",
       "Financing Activities",
       "Preparation of Cash Flow Statement"
-    ]
-  },
-  {
-    id: "12-14",
-    number: 14,
-    title: "Computerised Accounting System",
-    class: 12,
-    isFree: false,
-    pdfUrl: "/notes/class-12-chapter-14.pdf",
-    description: "Learn about computerised accounting and its applications.",
-    topics: [
-      "Concept of CAS",
-      "Features of CAS",
-      "Advantages of CAS",
-      "Accounting Software",
-      "Database Management System"
     ]
   }
 ];
