@@ -1,19 +1,36 @@
 import { useState } from "react";
-import { GraduationCap, CheckCircle2, XCircle, Trophy, RotateCcw } from "lucide-react";
+import { GraduationCap, CheckCircle2, XCircle, Trophy, RotateCcw, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { quizzes, Quiz, QuizQuestion } from "@/data/quizzes";
 import { chapters } from "@/data/chapters";
 import { toast } from "sonner";
 
+const difficultyColors = {
+  easy: "bg-accent/20 text-accent border-accent",
+  medium: "bg-amber-500/20 text-amber-600 border-amber-500",
+  hard: "bg-destructive/20 text-destructive border-destructive"
+};
+
+const difficultyLabels = {
+  easy: "Easy",
+  medium: "Medium",
+  hard: "Hard"
+};
+
 export default function QuizPage() {
+  const [selectedClass, setSelectedClass] = useState<"11" | "12">("11");
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
   const [showAdForResults, setShowAdForResults] = useState(false);
+
+  const class11Quizzes = quizzes.filter(q => q.chapterId.startsWith("11-"));
+  const class12Quizzes = quizzes.filter(q => q.chapterId.startsWith("12-"));
 
   const handleQuizSelect = (quiz: Quiz) => {
     setSelectedQuiz(quiz);
@@ -52,12 +69,20 @@ export default function QuizPage() {
   };
 
   const calculateScore = () => {
-    if (!selectedQuiz) return { correct: 0, total: 0, percentage: 0 };
+    if (!selectedQuiz) return { correct: 0, total: 0, percentage: 0, byDifficulty: { easy: { correct: 0, total: 0 }, medium: { correct: 0, total: 0 }, hard: { correct: 0, total: 0 } } };
     
     let correct = 0;
+    const byDifficulty = {
+      easy: { correct: 0, total: 0 },
+      medium: { correct: 0, total: 0 },
+      hard: { correct: 0, total: 0 }
+    };
+
     selectedQuiz.questions.forEach((q) => {
+      byDifficulty[q.difficulty].total++;
       if (selectedAnswers[q.id] === q.correctAnswer) {
         correct++;
+        byDifficulty[q.difficulty].correct++;
       }
     });
     
@@ -65,6 +90,7 @@ export default function QuizPage() {
       correct,
       total: selectedQuiz.questions.length,
       percentage: Math.round((correct / selectedQuiz.questions.length) * 100),
+      byDifficulty
     };
   };
 
@@ -79,6 +105,43 @@ export default function QuizPage() {
   const answeredCount = Object.keys(selectedAnswers).length;
   const progress = selectedQuiz ? (answeredCount / selectedQuiz.questions.length) * 100 : 0;
 
+  const renderQuizList = (quizList: Quiz[]) => (
+    <div className="grid gap-4 md:grid-cols-2">
+      {quizList.map((quiz) => {
+        const chapter = chapters.find((c) => c.id === quiz.chapterId);
+        const easyCount = quiz.questions.filter(q => q.difficulty === "easy").length;
+        const mediumCount = quiz.questions.filter(q => q.difficulty === "medium").length;
+        const hardCount = quiz.questions.filter(q => q.difficulty === "hard").length;
+        
+        return (
+          <Card
+            key={quiz.id}
+            className="cursor-pointer border-border transition-all hover:shadow-md hover:border-primary/50"
+            onClick={() => handleQuizSelect(quiz)}
+          >
+            <CardHeader>
+              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <GraduationCap className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-foreground text-lg">{quiz.title}</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                {chapter && `Chapter ${chapter.number}`}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Badge variant="secondary">{quiz.questions.length} Questions</Badge>
+              <div className="flex gap-2 flex-wrap">
+                <span className="text-xs px-2 py-1 rounded-full bg-accent/20 text-accent">{easyCount} Easy</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-amber-500/20 text-amber-600">{mediumCount} Medium</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-destructive/20 text-destructive">{hardCount} Hard</span>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="container max-w-4xl">
@@ -89,37 +152,42 @@ export default function QuizPage() {
           </p>
         </div>
 
-        
-
         {!selectedQuiz ? (
-          // Quiz Selection
-          <div className="grid gap-4 md:grid-cols-2">
-            {quizzes.map((quiz) => {
-              const chapter = chapters.find((c) => c.id === quiz.chapterId);
-              return (
-                <Card
-                  key={quiz.id}
-                  className="cursor-pointer border-border transition-all hover:shadow-md"
-                  onClick={() => handleQuizSelect(quiz)}
-                >
-                  <CardHeader>
-                    <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <GraduationCap className="h-5 w-5" />
-                    </div>
-                    <CardTitle className="text-foreground">{quiz.title}</CardTitle>
-                    <CardDescription className="text-muted-foreground">
-                      {chapter && `Class ${chapter.class} • Chapter ${chapter.number}`}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Badge variant="secondary">{quiz.questions.length} Questions</Badge>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+          // Quiz Selection with Class Tabs
+          <Tabs value={selectedClass} onValueChange={(v) => setSelectedClass(v as "11" | "12")}>
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="11" className="gap-2">
+                <BookOpen className="h-4 w-4" />
+                Class 11
+              </TabsTrigger>
+              <TabsTrigger value="12" className="gap-2">
+                <BookOpen className="h-4 w-4" />
+                Class 12
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="11">
+              {class11Quizzes.length > 0 ? (
+                renderQuizList(class11Quizzes)
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No quizzes available for Class 11 yet.</p>
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="12">
+              {class12Quizzes.length > 0 ? (
+                renderQuizList(class12Quizzes)
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No quizzes available for Class 12 yet.</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         ) : showResults ? (
-          // Results View
+          // Results View with Difficulty
           <Card className="border-border">
             <CardHeader className="text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -140,6 +208,28 @@ export default function QuizPage() {
                 </p>
               </div>
 
+              {/* Score by Difficulty */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 rounded-lg bg-accent/10 border border-accent/20">
+                  <div className="text-lg font-bold text-accent">
+                    {calculateScore().byDifficulty.easy.correct}/{calculateScore().byDifficulty.easy.total}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Easy</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <div className="text-lg font-bold text-amber-600">
+                    {calculateScore().byDifficulty.medium.correct}/{calculateScore().byDifficulty.medium.total}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Medium</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                  <div className="text-lg font-bold text-destructive">
+                    {calculateScore().byDifficulty.hard.correct}/{calculateScore().byDifficulty.hard.total}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Hard</p>
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <h3 className="font-semibold text-foreground">Review Answers:</h3>
                 {selectedQuiz.questions.map((question, index) => {
@@ -154,9 +244,17 @@ export default function QuizPage() {
                             <XCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-destructive" />
                           )}
                           <div className="flex-1">
-                            <p className="font-medium text-foreground">
-                              Q{index + 1}: {question.question}
-                            </p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-medium text-foreground">
+                                Q{index + 1}: {question.question}
+                              </p>
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${difficultyColors[question.difficulty]}`}
+                              >
+                                {difficultyLabels[question.difficulty]}
+                              </Badge>
+                            </div>
                             <p className="mt-1 text-sm text-muted-foreground">
                               Correct: {question.options[question.correctAnswer]}
                             </p>
@@ -183,7 +281,7 @@ export default function QuizPage() {
             </CardContent>
           </Card>
         ) : (
-          // Quiz Questions
+          // Quiz Questions (difficulty hidden)
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <Button
@@ -281,7 +379,6 @@ export default function QuizPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                
                 <div className="flex gap-3">
                   <Button
                     variant="outline"
