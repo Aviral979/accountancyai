@@ -86,55 +86,96 @@ export default function AskQuestion() {
       content: inputValue.trim(),
     };
 
-    // Add user message and loading AI message
-    const loadingMessage: Message = {
-      id: (Date.now() + 1).toString(),
+    const aiMessageId = (Date.now() + 1).toString();
+    const aiMessage: Message = {
+      id: aiMessageId,
       type: "ai",
       content: "",
       isLoading: true,
     };
 
-    setMessages(prev => [...prev, userMessage, loadingMessage]);
+    setMessages(prev => [...prev, userMessage, aiMessage]);
     setInputValue("");
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("solve-question", {
-        body: { question: userMessage.content }
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/solve-question`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ question: userMessage.content }),
       });
 
-      if (error) {
-        console.error("Edge function error:", error);
-        toast.error(error.message || "Failed to generate solution");
-        // Remove loading message
-        setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
+      if (!response.ok) {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Failed to generate solution");
+        setMessages(prev => prev.filter(m => m.id !== aiMessageId));
+        setIsLoading(false);
         return;
       }
 
-      if (data?.error) {
-        toast.error(data.error);
-        setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
+      const reader = response.body?.getReader();
+      if (!reader) {
+        toast.error("Failed to read response");
+        setMessages(prev => prev.filter(m => m.id !== aiMessageId));
+        setIsLoading(false);
         return;
       }
 
-      if (data?.solution) {
-        const { steps, finalAnswer } = parseAIResponse(data.solution);
+      const decoder = new TextDecoder();
+      let fullContent = "";
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
         
-        // Update loading message with actual content
+        let newlineIndex: number;
+        while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
+          let line = buffer.slice(0, newlineIndex);
+          buffer = buffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              fullContent += content;
+              setMessages(prev => prev.map(m => 
+                m.id === aiMessageId
+                  ? { ...m, isLoading: false, content: fullContent }
+                  : m
+              ));
+            }
+          } catch {
+            // Partial JSON, wait for more data
+          }
+        }
+      }
+
+      // Final parse for structured content
+      if (fullContent) {
+        const { steps, finalAnswer } = parseAIResponse(fullContent);
         setMessages(prev => prev.map(m => 
-          m.id === loadingMessage.id
-            ? { ...m, isLoading: false, steps, finalAnswer, content: data.solution }
+          m.id === aiMessageId
+            ? { ...m, isLoading: false, content: fullContent, steps: steps.length > 1 ? steps : undefined, finalAnswer: steps.length > 1 ? finalAnswer : undefined }
             : m
         ));
-        toast.success("Solution generated!");
-      } else {
-        toast.error("No solution received from AI");
-        setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
       }
     } catch (err) {
       console.error("Submit error:", err);
       toast.error("Failed to connect to AI service");
-      setMessages(prev => prev.filter(m => m.id !== loadingMessage.id));
+      setMessages(prev => prev.filter(m => m.id !== aiMessageId));
     } finally {
       setIsLoading(false);
     }
