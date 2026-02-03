@@ -83,11 +83,12 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: ACCOUNTANCY_SYSTEM_PROMPT },
           { role: "user", content: question }
         ],
+        stream: true,
       }),
     });
 
@@ -112,23 +113,11 @@ serve(async (req) => {
       );
     }
 
-    const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content;
+    console.log("Streaming response started");
 
-    if (!aiResponse) {
-      console.error("Empty AI response:", data);
-      return new Response(
-        JSON.stringify({ error: "No response from AI" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    console.log("AI response generated successfully");
-
-    return new Response(
-      JSON.stringify({ solution: aiResponse }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(response.body, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    });
   } catch (error) {
     console.error("solve-question error:", error);
     return new Response(
