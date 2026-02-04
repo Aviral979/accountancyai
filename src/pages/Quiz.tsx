@@ -12,15 +12,13 @@ import { toast } from "sonner";
 const difficultyColors = {
   easy: "bg-accent/20 text-accent border-accent",
   medium: "bg-amber-500/20 text-amber-600 border-amber-500",
-  hard: "bg-destructive/20 text-destructive border-destructive",
-  extreme: "bg-purple-500/20 text-purple-600 border-purple-500"
+  hard: "bg-destructive/20 text-destructive border-destructive"
 };
 
 const difficultyLabels = {
   easy: "Easy",
   medium: "Medium",
-  hard: "Hard",
-  extreme: "Extreme"
+  hard: "Hard"
 };
 
 export default function QuizPage() {
@@ -71,14 +69,13 @@ export default function QuizPage() {
   };
 
   const calculateScore = () => {
-    if (!selectedQuiz) return { correct: 0, total: 0, percentage: 0, byDifficulty: { easy: { correct: 0, total: 0 }, medium: { correct: 0, total: 0 }, hard: { correct: 0, total: 0 }, extreme: { correct: 0, total: 0 } } };
+    if (!selectedQuiz) return { correct: 0, total: 0, percentage: 0, byDifficulty: { easy: { correct: 0, total: 0 }, medium: { correct: 0, total: 0 }, hard: { correct: 0, total: 0 } } };
     
     let correct = 0;
     const byDifficulty = {
       easy: { correct: 0, total: 0 },
       medium: { correct: 0, total: 0 },
-      hard: { correct: 0, total: 0 },
-      extreme: { correct: 0, total: 0 }
+      hard: { correct: 0, total: 0 }
     };
 
     selectedQuiz.questions.forEach((q) => {
@@ -115,7 +112,6 @@ export default function QuizPage() {
         const easyCount = quiz.questions.filter(q => q.difficulty === "easy").length;
         const mediumCount = quiz.questions.filter(q => q.difficulty === "medium").length;
         const hardCount = quiz.questions.filter(q => q.difficulty === "hard").length;
-        const extremeCount = quiz.questions.filter(q => q.difficulty === "extreme").length;
         
         return (
           <Card
@@ -138,7 +134,6 @@ export default function QuizPage() {
                 <span className="text-xs px-2 py-1 rounded-full bg-accent/20 text-accent">{easyCount} Easy</span>
                 <span className="text-xs px-2 py-1 rounded-full bg-amber-500/20 text-amber-600">{mediumCount} Medium</span>
                 <span className="text-xs px-2 py-1 rounded-full bg-destructive/20 text-destructive">{hardCount} Hard</span>
-                <span className="text-xs px-2 py-1 rounded-full bg-purple-500/20 text-purple-600">{extremeCount} Extreme</span>
               </div>
             </CardContent>
           </Card>
@@ -214,7 +209,7 @@ export default function QuizPage() {
               </div>
 
               {/* Score by Difficulty */}
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="text-center p-3 rounded-lg bg-accent/10 border border-accent/20">
                   <div className="text-lg font-bold text-accent">
                     {calculateScore().byDifficulty.easy.correct}/{calculateScore().byDifficulty.easy.total}
@@ -232,12 +227,6 @@ export default function QuizPage() {
                     {calculateScore().byDifficulty.hard.correct}/{calculateScore().byDifficulty.hard.total}
                   </div>
                   <p className="text-xs text-muted-foreground">Hard</p>
-                </div>
-                <div className="text-center p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                  <div className="text-lg font-bold text-purple-600">
-                    {calculateScore().byDifficulty.extreme.correct}/{calculateScore().byDifficulty.extreme.total}
-                  </div>
-                  <p className="text-xs text-muted-foreground">Extreme</p>
                 </div>
               </div>
 
