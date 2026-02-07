@@ -17,13 +17,13 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 214 31.8182% 91.3725%;
+    --background: 0 0% 96%;
     --foreground: 0 0% 9%;
 
-    --card: 210 40% 96.0784%;
+    --card: 0 0% 98%;
     --card-foreground: 0 0% 9%;
 
-    --popover: 210 40% 98.0392%;
+    --popover: 0 0% 89%;
     --popover-foreground: 0 0% 9%;
 
     --primary: 243 75% 58%;
@@ -36,16 +36,16 @@ All colors MUST be HSL.
     --muted-foreground: 0 0% 9%;
 
     --accent: 250 100% 97%;
-    --accent-foreground: 210 40% 98.0392%;
+    --accent-foreground: 258 89% 66%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 85% 97%;
 
-    --border: 215 16.318% 46.8627%;
-    --input: 210 40% 98.0392%;
+    --border: 0 0% 83%;
+    --input: 0 0% 83%;
     --ring: 243 75% 58%;
 
-    --radius: 1.5rem;
+    --radius: 2.25rem;
 
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 0 0% 9%;
@@ -110,10 +110,10 @@ All colors MUST be HSL.
     --muted: 0 0% 45%;
     --muted-foreground: 0 0% 98%;
 
-    --accent: 261 72% 22%;
+    --accent: 215 16.318% 46.8627%;
     --accent-foreground: 255 91% 76%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 187 92.4051% 69.0196%;
     --destructive-foreground: 0 85% 97%;
 
     --border: 0 0% 32%;
@@ -151,10 +151,10 @@ All colors MUST be HSL.
     --sidebar: 0 0% 14%;
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
     --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0px 1px 4.5px 0px hsl(0, 0%, 0%);
-    --shadow: 0px 1px 9px 0px hsl(0, 0%, 0%);
-    --shadow-md: 0px 1px 13.5px 0px hsl(0, 0%, 0%);
-    --shadow-lg: 0px 1px 22.5px 0px hsl(0, 0%, 0%);
+    --shadow-sm: 0px 1px 18.25px 0px hsl(0, 0%, 0%);
+    --shadow: 0px 1px 36.5px 0px hsl(0, 0%, 0%);
+    --shadow-md: 0px 1px 54.75px 0px hsl(0, 0%, 0%);
+    --shadow-lg: 0px 1px 91.25px 0px hsl(0, 0%, 0%);
     --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   }
