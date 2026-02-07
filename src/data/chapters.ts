@@ -17,6 +17,7 @@ export const chapters: Chapter[] = [
     title: "Introduction to Accounting",
     class: 11,
     isFree: true,
+    pdfUrl: "/notes/class-11-chapter-1.pdf",
     description: "Learn the fundamental concepts, objectives, and importance of accounting in business.",
     topics: [
       "Meaning and Definition of Accounting",
@@ -32,6 +33,7 @@ export const chapters: Chapter[] = [
     title: "Theory Base of Accounting",
     class: 11,
     isFree: true,
+    pdfUrl: "/notes/class-11-chapter-2.pdf",
     description: "Understand the theoretical framework including concepts, principles, and standards.",
     topics: [
       "GAAP (Generally Accepted Accounting Principles)",
@@ -47,6 +49,7 @@ export const chapters: Chapter[] = [
     title: "Recording of Transactions – I",
     class: 11,
     isFree: false,
+    pdfUrl: "/notes/class-11-chapter-3.pdf",
     description: "Master the basics of journal entries and source documents.",
     topics: [
       "Source Documents and Vouchers",
@@ -62,6 +65,7 @@ export const chapters: Chapter[] = [
     title: "Recording of Transactions – II",
     class: 11,
     isFree: false,
+    pdfUrl: "/notes/class-11-chapter-4.pdf",
     description: "Learn about special purpose books and subsidiary books.",
     topics: [
       "Cash Book",
@@ -77,6 +81,7 @@ export const chapters: Chapter[] = [
     title: "Bank Reconciliation Statement",
     class: 11,
     isFree: false,
+    pdfUrl: "/notes/class-11-chapter-5.pdf",
     description: "Prepare bank reconciliation statements and understand timing differences.",
     topics: [
       "Need for Reconciliation",
@@ -92,6 +97,7 @@ export const chapters: Chapter[] = [
     title: "Trial Balance and Rectification of Errors",
     class: 11,
     isFree: false,
+    pdfUrl: "/notes/class-11-chapter-6.pdf",
     description: "Prepare trial balance and rectify accounting errors.",
     topics: [
       "Meaning and Objectives of Trial Balance",
@@ -107,6 +113,7 @@ export const chapters: Chapter[] = [
     title: "Depreciation, Provisions and Reserves",
     class: 11,
     isFree: false,
+    pdfUrl: "/notes/class-11-chapter-7.pdf",
     description: "Understand depreciation methods and accounting for provisions.",
     topics: [
       "Meaning and Causes of Depreciation",
@@ -122,6 +129,7 @@ export const chapters: Chapter[] = [
     title: "Bills of Exchange",
     class: 11,
     isFree: false,
+    pdfUrl: "/notes/class-11-chapter-8.pdf",
     description: "Learn about negotiable instruments and their accounting treatment.",
     topics: [
       "Meaning and Features",
@@ -137,6 +145,7 @@ export const chapters: Chapter[] = [
     title: "Financial Statements – I",
     class: 11,
     isFree: false,
+    pdfUrl: "/notes/class-11-chapter-9.pdf",
     description: "Prepare Trading and Profit & Loss Account for sole proprietorship.",
     topics: [
       "Trading Account",
