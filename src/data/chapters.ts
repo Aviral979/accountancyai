@@ -19,156 +19,196 @@ export const chapters: Chapter[] = [
     isFree: true,
     pdfUrl: "/notes/class-11-chapter-1.pdf",
     description: "Learn the fundamental concepts, objectives, and importance of accounting in business.",
-    topics: [
-      "Meaning and Definition of Accounting",
-      "Objectives of Accounting",
-      "Role of Accounting in Business",
-      "Branches of Accounting",
-      "Qualitative Characteristics of Accounting Information"
-    ]
+    topics: ["Meaning and Definition of Accounting", "Objectives of Accounting", "Role of Accounting in Business", "Branches of Accounting", "Qualitative Characteristics of Accounting Information"]
   },
   {
     id: "11-2",
     number: 2,
-    title: "Theory Base of Accounting",
+    title: "Basic Accounting Terms",
     class: 11,
     isFree: true,
     pdfUrl: "/notes/class-11-chapter-2.pdf",
-    description: "Understand the theoretical framework including concepts, principles, and standards.",
-    topics: [
-      "GAAP (Generally Accepted Accounting Principles)",
-      "Basic Accounting Concepts",
-      "Accounting Standards",
-      "Double Entry System",
-      "Accounting Equation"
-    ]
+    description: "Understand the basic terminology used in accounting.",
+    topics: ["Business Transaction", "Assets and Liabilities", "Capital and Revenue", "Debtors and Creditors", "Goods and Stock"]
   },
   {
     id: "11-3",
     number: 3,
-    title: "Recording of Transactions – I",
+    title: "Theory Base of Accounting, Accounting Standards and Ind-AS",
     class: 11,
     isFree: false,
     pdfUrl: "/notes/class-11-chapter-3.pdf",
-    description: "Master the basics of journal entries and source documents.",
-    topics: [
-      "Source Documents and Vouchers",
-      "Accounting Equation",
-      "Rules of Debit and Credit",
-      "Journal Entries",
-      "Books of Original Entry"
-    ]
+    description: "Understand the theoretical framework including concepts, principles, and standards.",
+    topics: ["GAAP", "Basic Accounting Concepts", "Accounting Standards", "Indian Accounting Standards (Ind-AS)", "Accounting Principles"]
   },
   {
     id: "11-4",
     number: 4,
-    title: "Recording of Transactions – II",
+    title: "Bases of Accounting",
     class: 11,
     isFree: false,
     pdfUrl: "/notes/class-11-chapter-4.pdf",
-    description: "Learn about special purpose books and subsidiary books.",
-    topics: [
-      "Cash Book",
-      "Purchase Book",
-      "Sales Book",
-      "Purchase Returns Book",
-      "Sales Returns Book"
-    ]
+    description: "Learn about cash basis and accrual basis of accounting.",
+    topics: ["Cash Basis of Accounting", "Accrual Basis of Accounting", "Difference Between Cash and Accrual", "Advantages and Disadvantages", "Applicability"]
   },
   {
     id: "11-5",
     number: 5,
-    title: "Bank Reconciliation Statement",
+    title: "Accounting Equation",
     class: 11,
     isFree: false,
     pdfUrl: "/notes/class-11-chapter-5.pdf",
-    description: "Prepare bank reconciliation statements and understand timing differences.",
-    topics: [
-      "Need for Reconciliation",
-      "Causes of Difference",
-      "Preparation of BRS",
-      "Adjusted Cash Book",
-      "Practical Problems"
-    ]
+    description: "Understand the fundamental accounting equation and its applications.",
+    topics: ["Meaning of Accounting Equation", "Assets = Liabilities + Capital", "Effect of Transactions on Equation", "Preparation of Accounting Equation", "Practical Problems"]
   },
   {
     id: "11-6",
     number: 6,
-    title: "Trial Balance and Rectification of Errors",
+    title: "Accounting Procedures – Rules of Debit and Credit",
     class: 11,
     isFree: false,
     pdfUrl: "/notes/class-11-chapter-6.pdf",
-    description: "Prepare trial balance and rectify accounting errors.",
-    topics: [
-      "Meaning and Objectives of Trial Balance",
-      "Methods of Preparation",
-      "Types of Errors",
-      "Rectification of Errors",
-      "Suspense Account"
-    ]
+    description: "Master the rules of debit and credit for different types of accounts.",
+    topics: ["Types of Accounts", "Rules of Debit and Credit", "Modern Approach", "Traditional Approach", "Practical Application"]
   },
   {
     id: "11-7",
     number: 7,
-    title: "Depreciation, Provisions and Reserves",
+    title: "Origin of Transactions – Source Documents and Vouchers",
     class: 11,
     isFree: false,
     pdfUrl: "/notes/class-11-chapter-7.pdf",
-    description: "Understand depreciation methods and accounting for provisions.",
-    topics: [
-      "Meaning and Causes of Depreciation",
-      "Methods of Depreciation",
-      "Provisions vs Reserves",
-      "Types of Reserves",
-      "Accounting Treatment"
-    ]
+    description: "Learn about source documents and preparation of vouchers.",
+    topics: ["Source Documents", "Types of Vouchers", "Preparation of Vouchers", "Invoice and Receipt", "Debit and Credit Notes"]
   },
   {
     id: "11-8",
     number: 8,
-    title: "Bills of Exchange",
+    title: "Journal",
     class: 11,
     isFree: false,
     pdfUrl: "/notes/class-11-chapter-8.pdf",
-    description: "Learn about negotiable instruments and their accounting treatment.",
-    topics: [
-      "Meaning and Features",
-      "Types of Bills",
-      "Discounting and Endorsement",
-      "Dishonour and Renewal",
-      "Accounting Entries"
-    ]
+    description: "Learn about journal as the book of original entry.",
+    topics: ["Meaning of Journal", "Format of Journal", "Simple and Compound Entries", "Opening Entry", "Practical Problems"]
   },
   {
     id: "11-9",
     number: 9,
-    title: "Financial Statements – I",
+    title: "Ledger",
     class: 11,
     isFree: false,
     pdfUrl: "/notes/class-11-chapter-9.pdf",
-    description: "Prepare Trading and Profit & Loss Account for sole proprietorship.",
-    topics: [
-      "Trading Account",
-      "Profit and Loss Account",
-      "Adjustments",
-      "Closing Entries",
-      "Preparation of Statements"
-    ]
+    description: "Understand ledger posting and balancing of accounts.",
+    topics: ["Meaning of Ledger", "Format of Ledger", "Posting from Journal", "Balancing of Accounts", "Practical Problems"]
   },
   {
     id: "11-10",
     number: 10,
-    title: "Financial Statements – II",
+    title: "Special Purpose Books I – Cash Book",
     class: 11,
     isFree: false,
-    description: "Prepare Balance Sheet with adjustments.",
-    topics: [
-      "Balance Sheet",
-      "Adjustments in Final Accounts",
-      "Closing Stock",
-      "Outstanding and Prepaid Expenses",
-      "Comprehensive Problems"
-    ]
+    description: "Learn about different types of cash books.",
+    topics: ["Simple Cash Book", "Double Column Cash Book", "Triple Column Cash Book", "Petty Cash Book", "Practical Problems"]
+  },
+  {
+    id: "11-11",
+    number: 11,
+    title: "Special Purpose Books II – Other Books",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-11.pdf",
+    description: "Learn about purchase book, sales book, and other subsidiary books.",
+    topics: ["Purchase Book", "Sales Book", "Purchase Returns Book", "Sales Returns Book", "Bills of Exchange Books"]
+  },
+  {
+    id: "11-12",
+    number: 12,
+    title: "Accounting of Goods and Services Tax (GST)",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-12.pdf",
+    description: "Understand GST accounting and its treatment in books.",
+    topics: ["Introduction to GST", "CGST, SGST and IGST", "Input Tax Credit", "GST Accounting Entries", "Practical Problems"]
+  },
+  {
+    id: "11-13",
+    number: 13,
+    title: "Bank Reconciliation Statement",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-13.pdf",
+    description: "Prepare bank reconciliation statements and understand timing differences.",
+    topics: ["Need for Reconciliation", "Causes of Difference", "Preparation of BRS", "Adjusted Cash Book", "Practical Problems"]
+  },
+  {
+    id: "11-14",
+    number: 14,
+    title: "Trial Balance",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-14.pdf",
+    description: "Prepare trial balance and understand its objectives.",
+    topics: ["Meaning and Objectives", "Methods of Preparation", "Significance of Agreement", "Limitations of Trial Balance", "Practical Problems"]
+  },
+  {
+    id: "11-15",
+    number: 15,
+    title: "Depreciation",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-15.pdf",
+    description: "Understand depreciation methods and their accounting treatment.",
+    topics: ["Meaning and Causes", "Straight Line Method", "Written Down Value Method", "Comparison of Methods", "Accounting Treatment"]
+  },
+  {
+    id: "11-16",
+    number: 16,
+    title: "Provisions and Reserves",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-16.pdf",
+    description: "Learn the difference between provisions and reserves.",
+    topics: ["Meaning of Provisions", "Meaning of Reserves", "Types of Reserves", "Difference Between Provisions and Reserves", "Accounting Treatment"]
+  },
+  {
+    id: "11-17",
+    number: 17,
+    title: "Rectification of Errors",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-17.pdf",
+    description: "Learn to identify and rectify accounting errors.",
+    topics: ["Types of Errors", "Errors Affecting Trial Balance", "Errors Not Affecting Trial Balance", "Suspense Account", "Rectification Entries"]
+  },
+  {
+    id: "11-18",
+    number: 18,
+    title: "Financial Statements of Sole Proprietorship",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-18.pdf",
+    description: "Prepare Trading, Profit & Loss Account and Balance Sheet.",
+    topics: ["Trading Account", "Profit and Loss Account", "Balance Sheet", "Closing Entries", "Practical Problems"]
+  },
+  {
+    id: "11-19",
+    number: 19,
+    title: "Adjustments in Preparation of Financial Statements",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-19.pdf",
+    description: "Learn about adjustments in final accounts preparation.",
+    topics: ["Closing Stock", "Outstanding Expenses", "Prepaid Expenses", "Accrued Income", "Comprehensive Problems"]
+  },
+  {
+    id: "11-20",
+    number: 20,
+    title: "Accounts from Incomplete Records – Single Entry System",
+    class: 11,
+    isFree: false,
+    pdfUrl: "/notes/class-11-chapter-20.pdf",
+    description: "Understand single entry system and preparation of accounts from incomplete records.",
+    topics: ["Meaning of Single Entry", "Difference from Double Entry", "Statement of Affairs", "Conversion Method", "Practical Problems"]
   },
   // Class 12 Chapters
   {
