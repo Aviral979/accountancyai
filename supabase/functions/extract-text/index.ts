@@ -13,9 +13,25 @@ serve(async (req) => {
   try {
     const { imageBase64 } = await req.json();
 
-    if (!imageBase64) {
+    if (!imageBase64 || typeof imageBase64 !== "string") {
       return new Response(
         JSON.stringify({ error: "Image data is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate image size (max ~3.5MB base64 = ~2.6MB file)
+    if (imageBase64.length > 5_000_000) {
+      return new Response(
+        JSON.stringify({ error: "Image too large (max 3MB)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate base64 image format
+    if (!imageBase64.match(/^data:image\/(jpeg|jpg|png|webp|gif|bmp);base64,/)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid image format. Supported: JPEG, PNG, WebP" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

@@ -95,6 +95,21 @@ serve(async (req) => {
       );
     }
 
+    // Validate question length
+    if (question.trim().length < 5) {
+      return new Response(
+        JSON.stringify({ error: "Question too short (min 5 characters)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (question.length > 5000) {
+      return new Response(
+        JSON.stringify({ error: "Question too long (max 5000 characters)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       console.error("LOVABLE_API_KEY is not configured");
