@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { BookOpen, FileQuestion, GraduationCap, Sparkles, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FeatureCard } from "@/components/FeatureCard";
@@ -167,9 +167,19 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t border-border bg-secondary/30 py-8">
-        <div className="container text-center text-sm text-muted-foreground">
-          <p>© 2025 AccountancyAI. Designed for CBSE Class 11 & 12 Students.</p>
-          <p className="mt-2">No login required. Your privacy is protected.</p>
+        <div className="container">
+          <div className="mb-6 flex flex-wrap justify-center gap-4 text-sm">
+            <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link to="/terms-and-conditions" className="text-muted-foreground hover:text-primary transition-colors">Terms & Conditions</Link>
+            <Link to="/disclaimer" className="text-muted-foreground hover:text-primary transition-colors">Disclaimer</Link>
+            <Link to="/gdpr-notice" className="text-muted-foreground hover:text-primary transition-colors">GDPR Notice</Link>
+            <Link to="/ccpa-notice" className="text-muted-foreground hover:text-primary transition-colors">CCPA Notice</Link>
+            <Link to="/contact-us" className="text-muted-foreground hover:text-primary transition-colors">Contact Us</Link>
+          </div>
+          <div className="text-center text-sm text-muted-foreground">
+            <p>&copy; 2025 AccountancyAI Online. Designed for CBSE Class 11 & 12 Students.</p>
+            <p className="mt-2">No login required. Your privacy is protected.</p>
+          </div>
         </div>
       </footer>
     </div>
