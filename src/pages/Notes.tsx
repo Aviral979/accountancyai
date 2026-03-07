@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { chapters, Chapter } from "@/data/chapters";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import AdSense from "@/components/ui/AdSense";
 
 export default function Notes() {
   const navigate = useNavigate();
@@ -109,7 +110,7 @@ export default function Notes() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                
+                <AdSense className="my-4" />
                 <div className="flex gap-3">
                   <Button
                     variant="outline"

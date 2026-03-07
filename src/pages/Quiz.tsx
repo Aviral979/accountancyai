@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { quizzes, Quiz, QuizQuestion } from "@/data/quizzes";
 import { chapters } from "@/data/chapters";
 import { toast } from "sonner";
+import AdSense from "@/components/ui/AdSense";
 
 const difficultyColors = {
   easy: "bg-accent/20 text-accent border-accent",
@@ -379,7 +380,7 @@ export default function QuizPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex gap-3">
+                <AdSense className="my-4" />
                   <Button
                     variant="outline"
                     onClick={() => setShowAdForResults(false)}

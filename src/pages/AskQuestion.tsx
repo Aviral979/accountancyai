@@ -7,6 +7,7 @@ import { ChatMessage, ChatInput, EmptyState } from "@/components/chat";
 import { toast } from "sonner";
 import { useOCR } from "@/hooks/useOCR";
 import { supabase } from "@/integrations/supabase/client";
+import AdSense from "@/components/ui/AdSense";
 
 interface SolutionStep {
   title: string;
