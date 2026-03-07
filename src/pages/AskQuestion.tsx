@@ -309,16 +309,23 @@ export default function AskQuestion() {
             <EmptyState onExampleClick={handleExampleClick} />
           ) : (
             <div className="space-y-6 pb-4">
-              {messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  type={message.type}
-                  content={message.content}
-                  steps={message.steps}
-                  finalAnswer={message.finalAnswer}
-                  isLoading={message.isLoading}
-                />
-              ))}
+              {messages.map((message, index) => {
+                // Count AI messages up to this point
+                const aiCountSoFar = messages.slice(0, index + 1).filter(m => m.type === "ai").length;
+                const showAd = message.type === "ai" && !message.isLoading && aiCountSoFar > 0 && aiCountSoFar % 5 === 0;
+                return (
+                  <div key={message.id}>
+                    <ChatMessage
+                      type={message.type}
+                      content={message.content}
+                      steps={message.steps}
+                      finalAnswer={message.finalAnswer}
+                      isLoading={message.isLoading}
+                    />
+                    {showAd && <AdSense className="my-6" />}
+                  </div>
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -366,7 +373,7 @@ export default function AskQuestion() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              
+              <AdSense className="my-4" />
               <div className="flex gap-3">
                 <Button
                   variant="outline"
