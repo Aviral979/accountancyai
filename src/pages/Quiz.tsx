@@ -381,6 +381,7 @@ export default function QuizPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <AdSense className="my-4" />
+                <div className="flex gap-3">
                   <Button
                     variant="outline"
                     onClick={() => setShowAdForResults(false)}
