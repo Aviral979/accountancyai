@@ -100,6 +100,7 @@ const Index = () => {
               />
             ))}
           </div>
+          <AdSense className="mt-12" />
         </div>
       </section>
 
