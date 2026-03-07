@@ -1,5 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import { BookOpen, FileQuestion, GraduationCap, Sparkles, CheckCircle } from "lucide-react";
+import AdSense from "@/components/ui/AdSense";
 import { Button } from "@/components/ui/button";
 import { FeatureCard } from "@/components/FeatureCard";
 
@@ -99,6 +100,7 @@ const Index = () => {
               />
             ))}
           </div>
+          <AdSense className="mt-12" />
         </div>
       </section>
 
